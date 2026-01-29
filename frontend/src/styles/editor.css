@@ -1,0 +1,103 @@
+/* Quill Editor Dark Theme Custom Styles */
+.quill {
+    background-color: #111827;
+    /* gray-900 */
+    border-radius: 0.5rem;
+    border: 1px solid #374151;
+    /* gray-700 */
+    color: #f3f4f6;
+    /* gray-100 */
+}
+
+.ql-toolbar.ql-snow {
+    border: none !important;
+    border-bottom: 1px solid #374151 !important;
+    background-color: #1f2937;
+    /* gray-800 */
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+.ql-container.ql-snow {
+    border: none !important;
+    min-height: 400px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.ql-editor {
+    min-height: 400px;
+}
+
+.ql-editor.ql-blank::before {
+    color: #9ca3af !important;
+    /* gray-400 */
+    font-style: normal;
+}
+
+/* Toolbar Icon Colors */
+.ql-snow .ql-stroke {
+    stroke: #d1d5db !important;
+    /* gray-300 */
+}
+
+.ql-snow .ql-fill {
+    fill: #d1d5db !important;
+}
+
+.ql-snow .ql-picker {
+    color: #d1d5db !important;
+}
+
+/* Hover Effects */
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke {
+    stroke: #60a5fa !important;
+    /* blue-400 */
+}
+
+.ql-snow.ql-toolbar button:hover .ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-fill {
+    fill: #60a5fa !important;
+}
+
+/* Detail View Content Styles */
+.board-content-view {
+    line-height: 1.6;
+}
+
+.board-content-view p {
+    margin-bottom: 1rem;
+}
+
+.board-content-view h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1.5rem 0 1rem;
+}
+
+.board-content-view h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 1.2rem 0 0.8rem;
+}
+
+.board-content-view ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.board-content-view ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.board-content-view blockquote {
+    border-left: 4px solid #374151;
+    padding-left: 1rem;
+    color: #9ca3af;
+    font-style: italic;
+    margin-bottom: 1rem;
+}

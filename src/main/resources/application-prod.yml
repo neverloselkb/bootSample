@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # 운영 서버용 Database 설정 (실제 운영 DB 접속 정보로 변경 필요)
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(0D8u9f8j0I7n+sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9s)
+    username: ENC(VvI7uI9sI7uI9sI7uI9s)
+    password: ENC(sI7uI9sI7uI9sI7uI9sI7u)
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # 운영 서버에서는 테이블 구조 자동 수정 방지
+
+# 파일 저장 설정 (운영 서버/NAS 경로)
+file:
+  # 마운트된 NAS 경로 또는 UNC 경로로 설정
+  upload-dir: Z:\uploads

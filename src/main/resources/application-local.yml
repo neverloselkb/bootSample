@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  # 로컬 개발용 Database 설정
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(0D8u9f8j0I7n+sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9s)
+    username: ENC(VvI7uI9sI7uI9sI7uI9s)
+    password: ENC(sI7uI9sI7uI9sI7uI9sI7u)
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# 파일 저장 설정 (로컬 개발용 경로)
+file:
+  upload-dir: Z:\uploads
