@@ -1,10 +1,10 @@
 package kr.co.bootSample.global.config;
 
-import kr.co.bootSample.global.security.JwtAuthenticationFilter;
-import kr.co.bootSample.global.security.JwtTokenProvider;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,9 +15,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import kr.co.bootSample.global.security.JwtAuthenticationFilter;
+import kr.co.bootSample.global.security.JwtTokenProvider;
 
 /**
  * Spring Security 6.x 보안 설정 클래스입니다.
@@ -25,11 +27,15 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,13 +44,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // 인증 관련 API 허용
-                        .requestMatchers("/uploads/**").permitAll() // 업로드된 이미지 접근 허용
-                        .requestMatchers("/api/files/**").permitAll() // 파일 업로드/다운로드 API 허용 (필요에 따라 인증 추가 가능)
+                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // 1. Preflight 우선 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 2. OPTIONS 메서드 강제 허용
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html")
                         .permitAll()
-                        .anyRequest().authenticated() // 나머지는 인증 필요
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class);
 
@@ -54,10 +61,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Vite 기본 포트
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+        // [CORS 완전 허용]
+        // addAllowedOriginPattern("*")은 모든 도메인을 허용하면서 Credentials(쿠키 등)도 사용 가능하게 해줍니다.
+        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedMethod("*"); // GET, POST, OPTIONS, PUT, DELETE 등 모두 허용
+        configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Preflight 요청 캐싱 (1시간)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

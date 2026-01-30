@@ -5,7 +5,8 @@ import axios from 'axios';
  * JWT 토큰을 localStorage에서 읽어와 모든 요청 Header에 자동으로 포함합니다.
  */
 const api = axios.create({
-    baseURL: '/api',
+    // 운영 환경(Build)이면 시놀로지 URL 사용, 개발 환경이면 Proxy(/api) 사용
+    baseURL: import.meta.env.PROD ? 'https://boot.pentiumman.synology.me/api' : '/api',
     headers: {
         'Content-Type': 'application/json',
     },

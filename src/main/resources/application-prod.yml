@@ -18,3 +18,7 @@ spring:
 file:
   # 도커 컨테이너 내부 경로로 설정
   upload-dir: /app/uploads
+
+server:
+  # Nginx(HTTPS) -> Tomcat(HTTP) 시 프로토콜 인식을 위한 설정은 SwaggerConfig에서 GlobalOpenApiCustomizer로 처리함
+  forward-headers-strategy: none

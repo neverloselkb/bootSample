@@ -45,61 +45,44 @@ NAS의 소스 폴더(예: `/docker/bootSample`)에 아래 **두 파일을 같은
 
 ## 3. Synology Container Manager (Docker) 설정
 
-### 3-1. 이미지 빌드 및 컨테이너 생성
-1. NAS에서 **Container Manager** 실행.
-2. **프로젝트** -> **생성** 클릭.
-3. 프로젝트 이름: `boot-sample-api`
-4. 경로: `app.jar`와 `Dockerfile`이 있는 폴더 선택.
-5. `docker-compose.yml`을 사용하는 대신, **이미지** 탭에서 **작업** -> **가져오기** -> **파일로부터 추가**를 통해 빌드하거나, SSH 접속이 가능하다면 해당 폴더에서 `docker build -t boot-sample-api .` 명령을 실행합니다.
-   - *팁: Container Manager UI에서 '프로젝트' 기능을 사용하여 아래 내용을 `docker-compose.yml`로 작성하면 가장 편리합니다.*
+### [추천] JAR 볼륨 마운트 방식 (이미지 빌드 없이 빠른 배포)
+파일을 바꿀 때마다 이미지를 다시 빌드할 필요가 없는 방식입니다.
 
+1. **docker-compose.yml** 작성:
 ```yaml
 version: '3.8'
 services:
   boot-api:
-    build: .
+    image: eclipse-temurin:21-jre  # 표준 Java 이미지 바로 사용
     container_name: boot-api
     ports:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      # Jasypt 암호화 키: DB 접속 정보 등을 복호화할 때 사용하는 '마스터 비밀번호'입니다.
-      # 현재 프로젝트 설정에는 'boot_sample_secret_key'가 기본값으로 입력되어 있습니다.
       - JASYPT_PASSWORD=boot_sample_secret_key 
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://[[URL]]?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+      - SPRING_DATASOURCE_USERNAME=[[Username]]
+      - SPRING_DATASOURCE_PASSWORD=[[Password]]
     volumes:
+      - .:/app                     # 현재 폴더 전체를 /app에 연결
       - ./uploads:/app/uploads
+    working_dir: /app
+    entrypoint: ["java", "-jar", "bootSample-0.0.1-SNAPSHOT.jar"]
     restart: always
 ```
 
----
-
-## 4. 프론트엔드 서빙 (Web Station)
-
-1. **Web Station** 실행.
-2. **웹 서비스** -> **생성** -> **정적 웹 사이트**.
-3. 이름: `boot-sample-frontend`
-4. 문서 루트: 업로드한 `dist` 폴더 선택.
-5. 생성 완료.
+2. **배포 순서**:
+   - 로컬에서 빌드한 `bootSample-0.0.1-SNAPSHOT.jar`를 NAS 폴더에 **덮어쓰기** 합니다.
+   - Container Manager에서 해당 컨테이너를 **[작업] -> [재시작]**만 누릅니다.
+   - **끝!** 이미지를 다시 지우고 만들 필요가 없습니다.
 
 ---
 
-## 5. 외부 접속 설정 (역방향 프록시)
+## 4. 로그 확인 (Troubleshooting)
+배포가 잘 되었는지, 에러가 없는지 확인하는 가장 확실한 방법입니다.
 
-**제어판** -> **로그인 포털** -> **고급** -> **역방향 프록시**에서 설정합니다.
-
-### 5-1. 프론트엔드 프록시
-- 소스 호스트 이름: `boot-app.yourdomain.me` (HTTPS, 443)
-- 대상 호스트 이름: `localhost` (HTTP, Web Station 포트)
-
-### 5-2. 백엔드 프록시
-- 소스 호스트 이름: `boot-api.yourdomain.me` (HTTPS, 443)
-- 대상 호스트 이름: `localhost` (HTTP, 8080)
-
-> [!TIP]
-> **인증서 설정**: 제어판 -> 보안 -> 인증서에서 Let's Encrypt 인증서를 발급받아 위 도메인들에 할당하세요.
+1. **Container Manager UI**: 컨테이너 상세보기 -> **로그** 탭 클릭.
+2. **실시간 확인**: 우측 상단의 '로그 다운로드' 옆에 실시간 뷰어가 있습니다.
+3. **확인할 문구**: `### SwaggerConfig Bean Initialized Successfully ###`
 
 ---
-
-## 6. 주의 사항
-- `application-prod.yml`의 DB 접속 정보가 NAS 내 MariaDB 환경에 맞는지 빌드 전 확인해야 합니다.
-- NAS 방화벽에서 8080, 80, 443 포트가 허용되어 있는지 확인하세요.
