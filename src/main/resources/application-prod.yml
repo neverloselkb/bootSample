@@ -3,12 +3,12 @@ spring:
     activate:
       on-profile: prod
 
-  # 운영 서버용 Database 설정 (실제 운영 DB 접속 정보로 변경 필요)
+  # 운영 서버용 Database 설정 (Docker 환경 변수로 주입)
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(0D8u9f8j0I7n+sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9sI7uI9s)
-    username: ENC(VvI7uI9sI7uI9sI7uI9s)
-    password: ENC(sI7uI9sI7uI9sI7uI9sI7u)
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   jpa:
     hibernate:
@@ -16,5 +16,5 @@ spring:
 
 # 파일 저장 설정 (운영 서버/NAS 경로)
 file:
-  # 마운트된 NAS 경로 또는 UNC 경로로 설정
-  upload-dir: Z:\uploads
+  # 도커 컨테이너 내부 경로로 설정
+  upload-dir: /app/uploads

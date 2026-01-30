@@ -42,3 +42,6 @@ Thumbs.db
 # Project Specific
 uploads/
 *.log
+
+# Secrets
+src/main/resources/application-local.yml

@@ -16,22 +16,16 @@ import org.springframework.context.annotation.Configuration;
 @EnableEncryptableProperties
 public class JasyptConfig {
 
+    @org.springframework.beans.factory.annotation.Value("${jasypt.encryptor.password:boot_sample_secret_key}")
+    private String password;
+
     @Bean("jasyptStringEncryptor")
     public StringEncryptor stringEncryptor() {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
 
-        // 암호화 키 (환경 변수 사용 권장: -Djasypt.encryptor.password=키값)
-        // 환경 변수가 없을 경우 기본값을 사용하도록 설정 (실제 운영 시에는 반드시 외부에서 주입)
-        String password = System.getProperty("jasypt.encryptor.password");
-        if (password == null || password.isEmpty()) {
-            password = System.getenv("JASYPT_PASSWORD");
-        }
-        if (password == null || password.isEmpty()) {
-            password = "boot_sample_secret_key"; // 기본값 (학습용)
-        }
-
         config.setPassword(password);
+
         config.setAlgorithm("PBEWithMD5AndDES");
         config.setKeyObtentionIterations("1000");
         config.setPoolSize("1");
