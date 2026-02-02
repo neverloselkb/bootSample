@@ -1,9 +1,12 @@
 package kr.co.bootSample.global.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,9 +21,10 @@ import java.util.Date;
 /**
  * JWT 토큰을 생성하고 검증하는 기능을 제공하는 컴포넌트입니다.
  */
-@Slf4j
 @Component
 public class JwtTokenProvider {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${jwt.secret:base64EncodedSecretKeyForBootSampleProjectThatIsLongEnough}")
     private String secretKeyString;
@@ -79,7 +83,7 @@ public class JwtTokenProvider {
             Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+            log.error("유효하지 않은 JWT 토큰입니다: {}", e.getMessage());
             return false;
         }
     }

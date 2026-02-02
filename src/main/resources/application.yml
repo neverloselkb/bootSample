@@ -44,8 +44,14 @@ server:
       enabled: true
       force: true
 
-# 공통 파일 설정 (하위 경로는 동일)
-file:
-  paths:
-    board: board
-    editor: editor
+# 애플리케이션 공통 설정
+app:
+  file:
+    paths:
+      board: board
+      editor: editor
+
+# JWT 설정 (인증 만료 시간)
+jwt:
+  secret: ${JWT_SECRET:base64EncodedSecretKeyForBootSampleProjectThatIsLongEnough}
+  expiration: 3600000 # 1시간 (60분 * 60초 * 1000ms)

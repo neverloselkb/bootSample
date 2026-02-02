@@ -10,11 +10,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -52,11 +55,11 @@ public class BoardController {
      * 게시글 등록 API
      */
     @Operation(summary = "게시글 작성", description = "제목, 내용 및 첨부파일을 입력해 새로운 게시글을 작성합니다.")
-    @PostMapping(consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Long> save(
             @Valid @RequestPart("board") BoardSaveRequest request,
-            @RequestPart(value = "files", required = false) List<org.springframework.web.multipart.MultipartFile> files,
-            Authentication authentication) throws java.io.IOException {
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            Authentication authentication) throws IOException {
         return ResponseEntity.ok(boardService.save(request, files, authentication.getName()));
     }
 
@@ -64,12 +67,12 @@ public class BoardController {
      * 게시글 수정 API
      */
     @Operation(summary = "게시글 수정", description = "작성자가 게시글 제목, 내용 및 추가 첨부파일을 수정합니다.")
-    @PutMapping(value = "/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> update(
             @PathVariable Long id,
             @Valid @RequestPart("board") BoardSaveRequest request,
-            @RequestPart(value = "files", required = false) List<org.springframework.web.multipart.MultipartFile> files,
-            Authentication authentication) throws java.io.IOException {
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            Authentication authentication) throws IOException {
         boardService.update(id, request, files, authentication.getName());
         return ResponseEntity.ok().build();
     }

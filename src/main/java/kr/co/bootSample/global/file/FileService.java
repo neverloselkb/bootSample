@@ -4,7 +4,8 @@ import kr.co.bootSample.domain.board.Board;
 import kr.co.bootSample.domain.board.BoardFile;
 import kr.co.bootSample.domain.board.BoardFileRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,23 +15,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
  * 파일 업로드 및 유틸리티 기능을 제공하는 서비스입니다.
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FileService {
 
-    @Value("${file.upload-dir:./uploads}")
+    private static final Logger log = LoggerFactory.getLogger(FileService.class);
+
+    @Value("${app.file.upload-dir:./uploads}")
     private String uploadDir;
 
-    @Value("${file.paths.board:board}")
+    @Value("${app.file.paths.board:board}")
     private String boardPath;
 
-    @Value("${file.paths.editor:editor}")
+    @Value("${app.file.paths.editor:editor}")
     private String editorPath;
 
     private final BoardFileRepository boardFileRepository;
@@ -40,7 +43,7 @@ public class FileService {
      */
     @Transactional
     public List<BoardFile> uploadFiles(List<MultipartFile> files, Board board) throws IOException {
-        List<BoardFile> boardFiles = new ArrayList<>();
+        List<BoardFile> boardFiles = new ArrayList<BoardFile>();
         if (files == null || files.isEmpty())
             return boardFiles;
 
@@ -57,6 +60,7 @@ public class FileService {
      */
     @Transactional
     public BoardFile uploadFile(MultipartFile file, Board board) throws IOException {
+        log.debug("파일 업로드 시작: {}, 게시글 ID: {}", file.getOriginalFilename(), board.getBoardId());
         String originName = file.getOriginalFilename();
         String storedName = generateStoredName(originName);
         // 게시판 전용 경로 사용 (boardPath)
@@ -82,13 +86,14 @@ public class FileService {
                 .fileType(file.getContentType())
                 .build();
 
-        return boardFileRepository.save(boardFile);
+        return Objects.requireNonNull(boardFileRepository.save(Objects.requireNonNull(boardFile)));
     }
 
     /**
      * 단일 파일을 저장하고 저장된 상대 경로명을 반환합니다. (이미지 핸들러용)
      */
     public String storeEditorFile(MultipartFile file) throws IOException {
+        log.debug("에디터 이미지 저장 시작: {}", file.getOriginalFilename());
         String originName = file.getOriginalFilename();
         String storedName = generateStoredName(originName);
         // 에디터 전용 경로 사용 (editorPath)
@@ -108,6 +113,7 @@ public class FileService {
      * 파일 삭제
      */
     public void deleteFile(String relativeStoredName) {
+        log.info("물리 파일 삭제 시도: {}", relativeStoredName);
         File file = new File(getFullPath(relativeStoredName));
         if (file.exists()) {
             file.delete();

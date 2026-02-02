@@ -3,6 +3,9 @@ package kr.co.bootSample.global.config;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class JasyptEncryptorMain {
     public static void main(String[] args) {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
@@ -22,8 +25,8 @@ public class JasyptEncryptorMain {
         String username = "neverlose";
         String password = "Skrkwk11##";
 
-        System.out.println("URL: ENC(" + encryptor.encrypt(url) + ")");
-        System.out.println("Username: ENC(" + encryptor.encrypt(username) + ")");
-        System.out.println("Password: ENC(" + encryptor.encrypt(password) + ")");
+        log.info("URL: ENC({})", encryptor.encrypt(url));
+        log.info("Username: ENC({})", encryptor.encrypt(username));
+        log.info("Password: ENC({})", encryptor.encrypt(password));
     }
 }

@@ -46,7 +46,10 @@
 - **코드 생성**: 항상 최신 Spring Boot 3.x의 스타일과 `record` 타입을 적용하세요.
 - **리팩토링**: `if-else`가 많으면 다형성(Polymorphism)으로 변경하고, 불필요한 null 체크를 피하세요.
 - **테스트**: Junit 5와 AssertJ를 사용한 단위 테스트 코드를 기본으로 작성합니다.
-- **주석**: 코드의 의도가 명확하지 않은 경우에만 Javadoc을 한글로 작성하세요.
+- **주석**: 학습용이므로 주석을 자세하게 작성할 것.
+- **Null Check**: Null type safty 경고가 없도록 할 것.
+- **Import**: import 시 java.util.* 사용 금지, 반드시 필요한 클래스만 import 할 것.
+- **Log**: Log는 반드시 한글로 작성할 것. 그리고 LogFactory를 사용하고 logback을 사용할 것. logback-spring.xml을 효율적으로 작성하여 필요한 내용만 출력할 것.
 
 ## 4. 라이브러리 활용
 - Validation: `spring-boot-starter-validation`
@@ -57,4 +60,5 @@
 - `@Autowired` 필드 주입 사용 금지 (생성자 주입 필수).
 - DTO에 JPA 어노테이션 사용 금지.
 - 비즈니스 로직을 Controller에 작성 금지.
-- 학습용이므로 주석을 자세하게 작성할 것.
+- 제네릭 타입을 추론하지 않고 항상 명시적으로 작성한다.
+- System.out.println은 사용하지 않고 logback을 사용한다.

@@ -9,7 +9,8 @@ import kr.co.bootSample.domain.member.Member;
 import kr.co.bootSample.domain.member.MemberRepository;
 import kr.co.bootSample.global.file.FileService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -23,17 +24,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * 게시판 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
  */
-@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class BoardService {
+
+    private static final Logger log = LoggerFactory.getLogger(BoardService.class);
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
@@ -46,7 +49,7 @@ public class BoardService {
      */
     @Transactional(readOnly = true)
     public Page<BoardResponse> findAll(String keyword, Pageable pageable) {
-        return boardRepository.findAllByKeyword(keyword, pageable)
+        return boardRepository.findAllByKeywordCustom(keyword, pageable)
                 .map(board -> new BoardResponse(
                         board.getBoardId(),
                         board.getTitle(),
@@ -59,7 +62,7 @@ public class BoardService {
      */
     @Transactional(readOnly = true)
     public BoardDetailResponse findById(Long id) {
-        Board board = boardRepository.findById(id)
+        Board board = boardRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
         List<FileResponse> fileList = board.getBoardFileList().stream()
@@ -94,14 +97,14 @@ public class BoardService {
                 .member(member)
                 .build();
 
-        Board savedBoard = boardRepository.save(board);
+        Board savedBoard = boardRepository.save(Objects.requireNonNull(board));
 
         // 파일 업로드 처리
         if (files != null && !files.isEmpty()) {
             fileService.uploadFiles(files, savedBoard);
         }
 
-        return java.util.Objects.requireNonNull(savedBoard).getBoardId();
+        return Objects.requireNonNull(savedBoard).getBoardId();
     }
 
     /**
@@ -109,7 +112,7 @@ public class BoardService {
      */
     public void update(Long id, BoardSaveRequest request, List<MultipartFile> files, String username)
             throws IOException {
-        Board board = boardRepository.findById(id)
+        Board board = boardRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
         if (!board.getMember().getUsername().equals(username)) {
@@ -146,7 +149,7 @@ public class BoardService {
                 String relativePath = imageUrl.replace("/uploads/", "")
                         .replace("/", File.separator);
                 fileService.deleteFile(relativePath);
-                log.info("에디터 본문에서 삭제된 이미지 파일 정리: {}", relativePath);
+                log.info("에디터 본문에서 삭제된 이미지 파일 정리 완료: {}", relativePath);
             }
         }
     }
@@ -155,7 +158,7 @@ public class BoardService {
      * HTML 본문에서 서버에 저장된 이미지 경로(/uploads/editor/...)를 추출합니다.
      */
     private Set<String> getImagesFromContent(String content) {
-        Set<String> images = new HashSet<>();
+        Set<String> images = new HashSet<String>();
         if (content == null || content.isEmpty())
             return images;
 
@@ -172,7 +175,7 @@ public class BoardService {
      * 게시글을 삭제합니다. 작성자 또는 관리자 권한이 필요합니다.
      */
     public void delete(Long id, String username) {
-        Board board = boardRepository.findById(id)
+        Board board = boardRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
         // 작성자 본인이거나 관리자인 경우만 삭제 가능하도록 처리 (Spring Security에서 처리할 수도 있으나 여기서도 체크)
@@ -188,7 +191,7 @@ public class BoardService {
      * 특정 첨부파일을 삭제합니다.
      */
     public void deleteFile(Long fileId, String username) {
-        BoardFile boardFile = boardFileRepository.findById(fileId)
+        BoardFile boardFile = boardFileRepository.findById(Objects.requireNonNull(fileId))
                 .orElseThrow(() -> new RuntimeException("파일을 찾을 수 없습니다."));
 
         // 게시글 작성자만 파일 삭제 가능

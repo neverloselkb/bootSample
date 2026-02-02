@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -7,12 +7,23 @@ import { useAuth } from '../context/AuthContext';
  * 로그인 페이지입니다.
  */
 export default function LoginPage() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [rememberMe, setRememberMe] = useState<boolean>(false);
+    const [autoLogin, setAutoLogin] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const { login } = useAuth();
     const navigate = useNavigate();
+
+    // 초기 로드 시 저장된 아이디가 있는지 확인
+    useEffect(() => {
+        const savedUsername = localStorage.getItem('savedUsername');
+        if (savedUsername) {
+            setUsername(savedUsername);
+            setRememberMe(true);
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -20,7 +31,15 @@ export default function LoginPage() {
         setFieldErrors({});
         try {
             const response = await api.post('/auth/login', { username, password });
-            login(response.data.accessToken);
+
+            // ID 기억하기 처리
+            if (rememberMe) {
+                localStorage.setItem('savedUsername', username);
+            } else {
+                localStorage.removeItem('savedUsername');
+            }
+
+            login(response.data.accessToken, autoLogin);
             navigate('/');
         } catch (err: any) {
             const data = err.response?.data;
@@ -69,9 +88,36 @@ export default function LoginPage() {
                     </div>
                 </div>
 
+                <div className="flex items-center gap-6 mt-4">
+                    <div className="flex items-center">
+                        <input
+                            id="rememberMe"
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="w-4 h-4 text-blue-600 bg-gray-900 border-gray-700 rounded focus:ring-blue-500 focus:ring-2 transition-all cursor-pointer"
+                        />
+                        <label htmlFor="rememberMe" className="ml-2 text-sm font-medium text-gray-400 cursor-pointer hover:text-gray-300 transition-colors">
+                            ID 기억하기
+                        </label>
+                    </div>
+                    <div className="flex items-center">
+                        <input
+                            id="autoLogin"
+                            type="checkbox"
+                            checked={autoLogin}
+                            onChange={(e) => setAutoLogin(e.target.checked)}
+                            className="w-4 h-4 text-blue-600 bg-gray-900 border-gray-700 rounded focus:ring-blue-500 focus:ring-2 transition-all cursor-pointer"
+                        />
+                        <label htmlFor="autoLogin" className="ml-2 text-sm font-medium text-gray-400 cursor-pointer hover:text-gray-300 transition-colors">
+                            자동 로그인
+                        </label>
+                    </div>
+                </div>
+
                 <button
                     type="submit"
-                    className="w-full mt-8 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-colors"
+                    className="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-colors"
                 >
                     로그인
                 </button>

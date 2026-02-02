@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * 회워 관련 비즈니스 로직을 처리하고 Spring Security의 UserDetailsService를 구현합니다.
@@ -51,14 +52,14 @@ public class MemberService implements UserDetailsService {
                 .role(Role.USER)
                 .build();
 
-        return java.util.Objects.requireNonNull(memberRepository.save(member)).getMemberId();
+        return Objects.requireNonNull(memberRepository.save(Objects.requireNonNull(member))).getMemberId();
     }
 
     /**
      * 사용자의 권한을 변경합니다. (관리자 전용)
      */
     public void updateRole(Long memberId, Role role) {
-        Member member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(Objects.requireNonNull(memberId))
                 .orElseThrow(() -> new RuntimeException("해당 사용자를 찾을 수 없습니다."));
         member.update(member.getNickname(), role);
     }
