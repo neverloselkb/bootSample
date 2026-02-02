@@ -45,3 +45,4 @@ uploads/
 
 # Secrets
 src/main/resources/application-local.yml
+JasyptEncryptorMain.java
