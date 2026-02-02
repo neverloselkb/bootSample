@@ -23,6 +23,9 @@ export const Navbar = () => {
 
                     <div className="flex items-center gap-4 sm:gap-6">
                         <Link to="/" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base font-medium">게시판</Link>
+                        {isAuthenticated && (
+                            <Link to="/ocr" className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base font-medium">아이템 등록</Link>
+                        )}
                         {isAuthenticated ? (
                             <>
                                 {role === 'ROLE_ADMIN' && (

@@ -9,6 +9,7 @@ import BoardListPage from './pages/BoardListPage';
 import BoardDetailPage from './pages/BoardDetailPage';
 import BoardFormPage from './pages/BoardFormPage';
 import UserManagementPage from './pages/UserManagementPage';
+import OcrPage from './pages/OcrPage';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/board/:id" element={<BoardDetailPage />} />
                 <Route path="/board/new" element={<BoardFormPage />} />
                 <Route path="/board/edit/:id" element={<BoardFormPage />} />
+                <Route path="/ocr" element={<OcrPage />} />
               </Route>
 
               {/* 관리자 권한이 필요한 라우트 (ADMIN 전용) */}
